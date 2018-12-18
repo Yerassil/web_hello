@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -12,10 +14,12 @@ def bye():
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
-    if request.method == 'POST':
-        item = request.form['item']
-        with open('db.txt', 'a') as f:
-            f.write('\n' + item)
     with open('db.txt', 'r') as f:
-        items = f.readlines()
-    return render_template('hello.html', items=items)
+        items = json.load(f)
+        if request.method == 'POST':
+            item = request.form['item']
+            quantity = request.form['quantity']
+            items.update({item: quantity})
+            with open('db.txt', 'w') as f2:
+                json.dump(items, f2)
+        return render_template('hello.html', items=items)
